@@ -1,3 +1,0 @@
-C:\Users\kisho\Documents\Unreal Projects\CTFProject\Source\CTFProject\CTFProject.Build.cs
-C:\Users\kisho\Documents\Unreal Projects\CTFProject\Source\CTFProject.Target.cs
-C:\Users\kisho\Documents\Unreal Projects\CTFProject\Source\CTFProjectEditor.Target.cs
