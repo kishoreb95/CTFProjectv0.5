@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/Actor.h"
+#include "Placeable.h"
 #include "CTFProjectCharacter.generated.h"
+
 
 UCLASS(config=Game)
 class ACTFProjectCharacter : public ACharacter
@@ -28,6 +31,12 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
+
+	UPROPERTY(EditAnywhere)
+	APlaceable* Wall;
+
+	UPROPERTY( BlueprintReadWrite )
+	TSubclassOf<APlaceable> Waller;
 
 protected:
 
@@ -58,10 +67,16 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+
+
+	void PlaceWall();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
+	float Reach;
 
 public:
 	/** Returns CameraBoom subobject **/
