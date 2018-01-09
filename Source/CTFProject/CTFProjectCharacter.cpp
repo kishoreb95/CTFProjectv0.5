@@ -44,14 +44,14 @@ ACTFProjectCharacter::ACTFProjectCharacter()
    FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
    FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-   ConstructorHelpers::FObjectFinder<APlaceable> WallAsset(TEXT("Blueprint'/Game/ThirdPersonCPP/Blueprints/Placeable/Wall.Wall'"));
-   Wall = WallAsset.Object;
+   
+   ConstructorHelpers::FObjectFinder<UBlueprint> WallAsset(TEXT("Blueprint'/Game/ThirdPersonCPP/Blueprints/Placeable/Wall.Wall'"));
+   Wall = (UClass*)WallAsset.Object->GeneratedClass;
 
+   ConstructorHelpers::FObjectFinder<UBlueprint> CubeAsset(TEXT("Blueprint'/Game/ThirdPersonCPP/Blueprints/Placeable/Cube.Cube'"));
+   Cube = (UClass*)CubeAsset.Object->GeneratedClass;
 
-	ConstructorHelpers::FObjectFinder<UBlueprint> WallAsseter(TEXT("Blueprint'/Game/ThirdPersonCPP/Blueprints/Placeable/Wall.Wall'"));
-   Waller = (UClass*)WallAsseter.Object->GeneratedClass;
-
-   Reach = 1000.f;
+   Reach = 1500.f;
 
    // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
    // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -87,11 +87,36 @@ void ACTFProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 
 
    PlayerInputComponent->BindAction("PlaceWall", IE_Pressed, this, &ACTFProjectCharacter::PlaceWall);
+   PlayerInputComponent->BindAction("PlaceCube", IE_Pressed, this, &ACTFProjectCharacter::PlaceCube);
 }
 
 void ACTFProjectCharacter::PlaceWall()
 {
-   FHitResult LinetraceHit;
+	FVector SpawnLocation = GetSpawnLocation();
+	if (SpawnLocation.IsZero()) {
+
+	}
+	else {
+		APlaceable* MyPlaceable = GetWorld()->SpawnActor<APlaceable>(Wall, SpawnLocation, FRotator(0, Controller->GetControlRotation().Yaw, 0), *(new FActorSpawnParameters));
+	}
+}
+
+void ACTFProjectCharacter::PlaceCube()
+{
+	FVector SpawnLocation = GetSpawnLocation();
+	if (SpawnLocation.IsZero()) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, SpawnLocation.ToString());
+	}
+	else {
+		APlaceable* MyPlaceable = GetWorld()->SpawnActor<APlaceable>(Cube, SpawnLocation, FRotator(0, Controller->GetControlRotation().Yaw, 0), *(new FActorSpawnParameters));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, SpawnLocation.ToString());
+	}
+	
+}
+
+FVector ACTFProjectCharacter::GetSpawnLocation()
+{
+	FHitResult LinetraceHit;
    FVector StartTrace = FollowCamera->GetComponentLocation();
    FVector EndTrace = (FollowCamera->GetForwardVector() * Reach) + StartTrace;
 
@@ -102,16 +127,12 @@ void ACTFProjectCharacter::PlaceWall()
 
    AActor* PotentialObject = Cast<AActor>(LinetraceHit.GetActor());
 
-   FVector DropLocation = EndTrace;
-
    if (PotentialObject != NULL) {
-   	DropLocation = LinetraceHit.ImpactPoint + 30.0f;
-      GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, *PotentialObject->GetName());
+	  return LinetraceHit.ImpactPoint - 20.0f * FollowCamera->GetForwardVector();
    }
-   FActorSpawnParameters SpawnInfo;
-   APlaceable* MyPlaceable = GetWorld()->SpawnActor<APlaceable>(Waller, DropLocation, FRotationMatrix::MakeFromY(FollowCamera->GetForwardVector()).Rotator(), SpawnInfo);
-   //Wall->SetActorLocationAndRotation(DropLocation, FRotator::ZeroRotator);
-   
+   else {
+	   return FVector(0.f);
+   }
    
 }
 
