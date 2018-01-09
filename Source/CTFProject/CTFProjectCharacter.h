@@ -32,12 +32,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
-	UPROPERTY(EditAnywhere)
-	APlaceable* Wall;
-
-	UPROPERTY( BlueprintReadWrite )
-	TSubclassOf<APlaceable> Waller;
-
 protected:
 
 	/** Resets HMD orientation in VR. */
@@ -68,8 +62,13 @@ protected:
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 
+	FVector GetSpawnLocation();
 
 	void PlaceWall();
+	void PlaceCube();
+
+	TSubclassOf<APlaceable> Wall;
+	TSubclassOf<APlaceable> Cube;
 
 protected:
 	// APawn interface
