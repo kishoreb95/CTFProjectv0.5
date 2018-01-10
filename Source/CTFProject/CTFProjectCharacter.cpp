@@ -53,6 +53,9 @@ ACTFProjectCharacter::ACTFProjectCharacter()
 
    Reach = 1500.f;
 
+   numWalls = 10;
+   numCubes = 10;
+
    // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
    // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -85,33 +88,37 @@ void ACTFProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Play
    // VR headset functionality
    PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ACTFProjectCharacter::OnResetVR);
 
-
    PlayerInputComponent->BindAction("PlaceWall", IE_Pressed, this, &ACTFProjectCharacter::PlaceWall);
    PlayerInputComponent->BindAction("PlaceCube", IE_Pressed, this, &ACTFProjectCharacter::PlaceCube);
 }
 
 void ACTFProjectCharacter::PlaceWall()
 {
-	FVector SpawnLocation = GetSpawnLocation();
-	if (SpawnLocation.IsZero()) {
+	if (numWalls > 0) {
+		FVector SpawnLocation = GetSpawnLocation();
+		if (SpawnLocation.IsZero()) {
 
-	}
-	else {
-		APlaceable* MyPlaceable = GetWorld()->SpawnActor<APlaceable>(Wall, SpawnLocation, FRotator(0, Controller->GetControlRotation().Yaw, 0), *(new FActorSpawnParameters));
+		}
+		else {
+			APlaceable* MyPlaceable = GetWorld()->SpawnActor<APlaceable>(Wall, SpawnLocation, FRotator(0, Controller->GetControlRotation().Yaw, 0), *(new FActorSpawnParameters));
+			numWalls--;
+		}
 	}
 }
 
 void ACTFProjectCharacter::PlaceCube()
 {
-	FVector SpawnLocation = GetSpawnLocation();
-	if (SpawnLocation.IsZero()) {
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, SpawnLocation.ToString());
+	if (numCubes > 0) {
+		FVector SpawnLocation = GetSpawnLocation();
+		if (SpawnLocation.IsZero()) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, SpawnLocation.ToString());
+		}
+		else {
+			APlaceable* MyPlaceable = GetWorld()->SpawnActor<APlaceable>(Cube, SpawnLocation, FRotator(0, Controller->GetControlRotation().Yaw, 0), *(new FActorSpawnParameters));
+			numCubes--;
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, SpawnLocation.ToString());
+		}
 	}
-	else {
-		APlaceable* MyPlaceable = GetWorld()->SpawnActor<APlaceable>(Cube, SpawnLocation, FRotator(0, Controller->GetControlRotation().Yaw, 0), *(new FActorSpawnParameters));
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, SpawnLocation.ToString());
-	}
-	
 }
 
 FVector ACTFProjectCharacter::GetSpawnLocation()

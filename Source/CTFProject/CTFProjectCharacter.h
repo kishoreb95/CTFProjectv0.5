@@ -67,8 +67,13 @@ protected:
 	void PlaceWall();
 	void PlaceCube();
 
+
+	// TODO: Generalize this part to reduce redundant code
 	TSubclassOf<APlaceable> Wall;
 	TSubclassOf<APlaceable> Cube;
+
+	uint8 numWalls;
+	uint8 numCubes;
 
 protected:
 	// APawn interface
